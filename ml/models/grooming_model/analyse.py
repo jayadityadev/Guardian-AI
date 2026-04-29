@@ -14,8 +14,18 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any
 
-from .predict_grooming_bert import predict_grooming_with_confidence as bert_predict
+# Strict enum sets from the API contract
+_VALID_FLAG_TYPES = {
+    "isolation_tactic",
+    "gift_offering",
+    "trust_building",
+    "secrecy_request",
+    "platform_hop",
+    "age_probing",
+    "request_escalation",
+}
 
+_VALID_SEVERITIES = {"high", "medium", "low"}
 
 GROQ_SYSTEM_PROMPT = """
 You are a child safety AI. Analyse the following chat conversation for grooming behaviour patterns.
@@ -29,12 +39,17 @@ Grooming patterns to detect:
 - Platform hopping: asking to move to Snapchat, WhatsApp, Signal
 - Request escalation: any inappropriate asks
 
+Allowed flag type values (use ONLY these exact strings):
+isolation_tactic, gift_offering, trust_building, secrecy_request, platform_hop, age_probing, request_escalation
+
+Allowed severity values: high, medium, low
+
 Respond ONLY with valid JSON. No preamble. No markdown. Exactly this schema:
 {
   "grooming_detected": true,
   "intent_score": 0.85,
   "flags": [
-    {"type": "isolation_tactic", "snippet": "exact quote from chat", "severity": "high"}
+    {"type": "isolation_tactic", "snippet": "exact quote from chat", "severity": "high", "message_index": 0}
   ],
   "dominant_pattern": "isolation",
   "reasoning": "one sentence"
@@ -56,14 +71,16 @@ def _combined_text(messages: list[dict[str, Any]]) -> str:
 
 def _keyword_flags(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Heuristic flags used when Groq is unavailable or returns invalid JSON."""
+    # Order matters: more specific patterns first. A message only matches the
+    # first pattern whose keyword fires (one flag per message per scan pass).
     patterns = [
-        ("trust_building", ["you\'re so mature", "so mature", "special", "understand you", "trust me", "beautiful", "handsome"], "medium"),
-        ("isolation_tactic", ["dont tell", "don't tell", "keep this between us", "secret", "private", "snapchat", "whatsapp", "signal", "telegram"], "high"),
-        ("gift_offering", ["robux", "free coins", "money", "gift", "buy you", "send you"], "medium"),
-        ("secrecy_request", ["delete this", "delete these", "between us", "no one else", "dont tell anyone", "don't tell anyone"], "high"),
-        ("age_probing", ["how old", "your age", "home alone", "alone right now", "are you alone"], "medium"),
-        ("platform_hop", ["snapchat", "whatsapp", "signal", "telegram"], "medium"),
         ("request_escalation", ["send photo", "send a photo", "pictures", "pic", "video call", "meet in private"], "high"),
+        ("secrecy_request", ["delete this", "delete these", "no one else", "dont tell anyone", "don't tell anyone"], "high"),
+        ("platform_hop", ["snapchat", "whatsapp", "signal", "telegram"], "medium"),
+        ("isolation_tactic", ["dont tell", "don't tell", "keep this between us", "secret", "private"], "high"),
+        ("gift_offering", ["robux", "free coins", "money", "gift", "buy you", "send you"], "medium"),
+        ("age_probing", ["how old", "your age", "home alone", "alone right now", "are you alone"], "medium"),
+        ("trust_building", ["you\'re so mature", "so mature", "special", "understand you", "trust me", "beautiful", "handsome"], "medium"),
     ]
 
     flags: list[dict[str, Any]] = []
@@ -71,7 +88,10 @@ def _keyword_flags(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
         text = _safe_message_text(message).lower()
         if not text:
             continue
+        matched = False
         for flag_type, keywords, severity in patterns:
+            if matched:
+                break
             for keyword in keywords:
                 if keyword in text:
                     flags.append(
@@ -82,6 +102,7 @@ def _keyword_flags(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
                             "message_index": index,
                         }
                     )
+                    matched = True
                     break
 
     return flags
@@ -125,7 +146,12 @@ def groq_analyse(messages: list[dict[str, Any]]) -> dict[str, Any]:
     )
 
     try:
-        parsed = json.loads(response.choices[0].message.content)
+        raw_content = response.choices[0].message.content
+        # Strip markdown fences if Groq wraps them despite the prompt
+        raw_content = re.sub(r"^```(?:json)?\s*", "", raw_content.strip())
+        raw_content = re.sub(r"\s*```$", "", raw_content.strip())
+        parsed = json.loads(raw_content)
+
         if "flags" not in parsed:
             parsed["flags"] = []
         if "intent_score" not in parsed:
@@ -134,6 +160,25 @@ def groq_analyse(messages: list[dict[str, Any]]) -> dict[str, Any]:
             parsed["dominant_pattern"] = classify_stage(parsed["flags"], {"trust_building": False, "isolation": False, "secrecy": False, "escalation": False})
         if "reasoning" not in parsed:
             parsed["reasoning"] = "Groq analysis completed."
+
+        # Validate and normalise flags to strict contract enums
+        validated_flags: list[dict[str, Any]] = []
+        for flag in parsed.get("flags", []):
+            if not isinstance(flag, dict):
+                continue
+            ftype = str(flag.get("type", "")).lower().strip().replace(" ", "_")
+            if ftype not in _VALID_FLAG_TYPES:
+                continue
+            severity = str(flag.get("severity", "medium")).lower().strip()
+            if severity not in _VALID_SEVERITIES:
+                severity = "medium"
+            validated_flags.append({
+                "type": ftype,
+                "snippet": str(flag.get("snippet", "")),
+                "severity": severity,
+                "message_index": int(flag.get("message_index", 0)),
+            })
+        parsed["flags"] = validated_flags
         return parsed
     except Exception:
         flags = _keyword_flags(messages)
@@ -153,6 +198,7 @@ def bert_score(messages: list[dict[str, Any]]) -> float:
         return 0.0
 
     try:
+        from .predict_grooming_bert import predict_grooming_with_confidence as bert_predict
         result = bert_predict(full_text)
         return float(result.get("probability", 0.0))
     except Exception:

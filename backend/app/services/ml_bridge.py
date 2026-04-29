@@ -9,7 +9,7 @@ This module supports three inference modes in order:
 
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 
 import requests
@@ -18,7 +18,7 @@ import requests
 def _mock_analyse(messages: list[dict]) -> dict:
     """Local mock analysis used as a fallback."""
     risk_score = min(100, len(messages) * 5 + 30)
-    confidence = 0.72 + (len(messages) * 0.01)
+    confidence = round(min(0.72 + (len(messages) * 0.01), 1.0), 2)
 
     all_text = " ".join([m.get("text", "").lower() for m in messages])
     if "mature" in all_text or "special" in all_text:
@@ -26,7 +26,7 @@ def _mock_analyse(messages: list[dict]) -> dict:
     elif "secret" in all_text or "tell parents" in all_text:
         grooming_stage = "isolation"
     elif "money" in all_text or "gift" in all_text:
-        grooming_stage = "gift_lure"
+        grooming_stage = "trust_building"
     else:
         grooming_stage = "trust_building"
 
@@ -39,9 +39,9 @@ def _mock_analyse(messages: list[dict]) -> dict:
         }
     ]
 
-    if risk_score > 80:
+    if risk_score >= 80:
         recommendation = "escalate_platform"
-    elif risk_score > 60:
+    elif risk_score >= 50:
         recommendation = "alert_parent"
     else:
         recommendation = "monitor"
@@ -49,9 +49,9 @@ def _mock_analyse(messages: list[dict]) -> dict:
     return {
         "session_id": str(uuid4()),
         "platform": "json_upload",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "risk_score": risk_score,
-        "confidence": float(confidence),
+        "confidence": confidence,
         "grooming_stage": grooming_stage,
         "flags": mock_flags,
         "categories": [grooming_stage],
@@ -102,11 +102,13 @@ def analyse(messages: list[dict]) -> dict:
         if str(repo_root) not in sys.path:
             sys.path.insert(0, str(repo_root))
 
-        # The grooming model wrapper provides an analyse() function
-        from ml.models.grooming_model import analyse as jaggu_analyse
+        # Import the analyse *module* from the grooming_model package, then call
+        # its analyse() function.  The package __init__.py re-exports the function
+        # under the same name, so we import the module explicitly to avoid shadowing.
+        from ml.models.grooming_model.analyse import analyse as ml_analyse
 
         try:
-            return jaggu_analyse.analyse(messages)
+            return ml_analyse(messages)
         except Exception as exc:
             logging.exception("In-repo ML analyse() raised an exception, falling back: %s", exc)
     except Exception:
