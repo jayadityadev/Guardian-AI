@@ -1,0 +1,47 @@
+{
+  "session_id": "demo-hinglish",
+  "platform": "json_upload",
+  "timestamp": "2025-01-01T22:14:00Z",
+  "risk_score": 82,
+  "confidence": 0.93,
+  "grooming_stage": "secrecy",
+  "flags": [
+    {
+      "type": "trust_building",
+      "snippet": "tu bahut samajhdar hai",
+      "severity": "medium",
+      "message_index": 2
+    },
+    {
+      "type": "isolation_tactic",
+      "snippet": "yaar kisi ko mat batana",
+      "severity": "high",
+      "message_index": 6
+    },
+    {
+      "type": "gift_offering",
+      "snippet": "free coins dunga bhai",
+      "severity": "high",
+      "message_index": 11
+    },
+    {
+      "type": "secrecy_request",
+      "snippet": "sirf hamare beech mein rahe",
+      "severity": "high",
+      "message_index": 18
+    }
+  ],
+  "categories": ["trust_building", "isolation", "gift_lure", "secrecy"],
+  "stage_progression": {
+    "trust_building": true,
+    "isolation": true,
+    "secrecy": true,
+    "escalation": false
+  },
+  "recommendation": "alert_parent",
+  "drift_signals": {
+    "late_night_messages": true,
+    "message_frequency_spike": true,
+    "new_unknown_contact": true
+  }
+}

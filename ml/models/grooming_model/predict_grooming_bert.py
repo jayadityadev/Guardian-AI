@@ -1,0 +1,175 @@
+"""
+BERT Grooming Detection Predictor
+Uses fine-tuned DistilBERT model for predator behavior recognition
+TensorFlow backend for Windows compatibility
+"""
+
+from pathlib import Path
+import tensorflow as tf
+from transformers import AutoTokenizer, TFAutoModelForSequenceClassification
+import numpy as np
+
+# Global model cache
+_model = None
+_tokenizer = None
+
+
+def _get_model_path():
+    """Get path to saved BERT model"""
+    current_dir = Path(__file__).parent
+    return current_dir / "saved_model_bert"
+
+
+def _load_model():
+    """Lazy-load the BERT model and tokenizer"""
+    global _model, _tokenizer
+    
+    if _model is not None and _tokenizer is not None:
+        return _model, _tokenizer
+    
+    model_path = _get_model_path()
+    
+    if not model_path.exists():
+        raise FileNotFoundError(
+            f"BERT model not found at {model_path}\n"
+            f"Run: python train_bert_grooming.py"
+        )
+    
+    try:
+        _tokenizer = AutoTokenizer.from_pretrained(str(model_path))
+        _model = TFAutoModelForSequenceClassification.from_pretrained(str(model_path))
+        print(f"Successfully loaded BERT model from {model_path}")
+    except Exception as e:
+        raise RuntimeError(f"Failed to load BERT model: {e}")
+    
+    return _model, _tokenizer
+
+
+def predict_grooming(text, threshold=0.5):
+    """
+    Predict grooming risk score for a single text
+    
+    Args:
+        text (str): Text message to analyze
+        threshold (float): Probability threshold for grooming classification (default: 0.5)
+    
+    Returns:
+        dict: {
+            'probability': float (0.0-1.0),
+            'is_grooming': bool (True if probability >= threshold),
+            'confidence': float (confidence score)
+        }
+    """
+    model, tokenizer = _load_model()
+    
+    text = str(text).strip()
+    
+    if not text:
+        return {
+            'probability': 0.0,
+            'is_grooming': False,
+            'confidence': 1.0,
+            'error': 'Empty text provided'
+        }
+    
+    try:
+        # Tokenize input
+        inputs = tokenizer(
+            text,
+            max_length=128,
+            padding='max_length',
+            truncation=True,
+            return_tensors='tf'
+        )
+        
+        # Get prediction
+        outputs = model(inputs)
+        logits = outputs.logits
+        
+        # Apply softmax to get probabilities
+        probs = tf.nn.softmax(logits, axis=1)
+        grooming_prob = float(probs[0, 1].numpy())  # Probability of class 1 (grooming)
+        safe_prob = float(probs[0, 0].numpy())
+        
+        is_grooming = grooming_prob >= threshold
+        confidence = max(grooming_prob, safe_prob)
+        
+        return {
+            'probability': round(grooming_prob, 4),
+            'is_grooming': is_grooming,
+            'confidence': round(confidence, 4),
+            'safe_prob': round(safe_prob, 4)
+        }
+    
+    except Exception as e:
+        return {
+            'probability': 0.0,
+            'is_grooming': False,
+            'confidence': 0.0,
+            'error': str(e)
+        }
+
+
+def predict_grooming_batch(texts, threshold=0.5):
+    """
+    Predict grooming risk scores for multiple texts
+    
+    Args:
+        texts (list): List of text messages
+        threshold (float): Probability threshold for grooming classification
+    
+    Returns:
+        list: List of prediction dicts
+    """
+    return [predict_grooming(text, threshold) for text in texts]
+
+
+def predict_grooming_with_confidence(text):
+    """
+    Predict grooming with detailed confidence metrics
+    
+    Args:
+        text (str): Text to analyze
+    
+    Returns:
+        dict: Detailed prediction with confidence scores
+    """
+    result = predict_grooming(text)
+    
+    if 'error' in result:
+        return result
+    
+    # Add risk level classification
+    prob = result['probability']
+    if prob >= 0.8:
+        risk_level = 'CRITICAL'
+    elif prob >= 0.6:
+        risk_level = 'HIGH'
+    elif prob >= 0.4:
+        risk_level = 'MEDIUM'
+    else:
+        risk_level = 'LOW'
+    
+    result['risk_level'] = risk_level
+    
+    return result
+
+
+if __name__ == '__main__':
+    # Test the predictor
+    test_texts = [
+        "hey beautiful, want to chat privately?",
+        "what time are you free today?",
+        "I'm 25 and looking for someone to talk to",
+        "do you have any photos?"
+    ]
+    
+    print("BERT Grooming Predictions Test")
+    print("=" * 80)
+    
+    for text in test_texts:
+        result = predict_grooming_with_confidence(text)
+        print(f"\nText: {text}")
+        print(f"  Probability: {result.get('probability', 'N/A')}")
+        print(f"  Risk Level: {result.get('risk_level', 'N/A')}")
+        print(f"  Confidence: {result.get('confidence', 'N/A')}")

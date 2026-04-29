@@ -1,0 +1,41 @@
+{
+  "session_id": "demo-high-risk",
+  "platform": "json_upload",
+  "timestamp": "2025-01-01T22:14:00Z",
+  "risk_score": 78,
+  "confidence": 0.91,
+  "grooming_stage": "isolation",
+  "flags": [
+    {
+      "type": "trust_building",
+      "snippet": "you're so mature for your age",
+      "severity": "medium",
+      "message_index": 3
+    },
+    {
+      "type": "isolation_tactic",
+      "snippet": "don't tell your parents about this",
+      "severity": "high",
+      "message_index": 14
+    },
+    {
+      "type": "gift_offering",
+      "snippet": "I'll buy you Robux if you keep this between us",
+      "severity": "high",
+      "message_index": 21
+    }
+  ],
+  "categories": ["isolation", "gift_lure", "trust_building"],
+  "stage_progression": {
+    "trust_building": true,
+    "isolation": true,
+    "secrecy": true,
+    "escalation": false
+  },
+  "recommendation": "alert_parent",
+  "drift_signals": {
+    "late_night_messages": true,
+    "message_frequency_spike": false,
+    "new_unknown_contact": true
+  }
+}

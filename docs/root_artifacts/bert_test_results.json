@@ -1,0 +1,170 @@
+{
+  "grooming": {
+    "correct": 2,
+    "total": 10,
+    "predictions": [
+      {
+        "text": "hey beautiful, want to chat privately?",
+        "probability": 0.0835,
+        "risk_level": "LOW",
+        "expected_category": "grooming"
+      },
+      {
+        "text": "I've been thinking about you. Can we talk in private?",
+        "probability": 0.5848,
+        "risk_level": "MEDIUM",
+        "expected_category": "grooming"
+      },
+      {
+        "text": "You seem special. Do you have photos to share?",
+        "probability": 0.1726,
+        "risk_level": "LOW",
+        "expected_category": "grooming"
+      },
+      {
+        "text": "What do you look like? Send me a picture",
+        "probability": 0.4245,
+        "risk_level": "MEDIUM",
+        "expected_category": "grooming"
+      },
+      {
+        "text": "You're so pretty, I'd love to get to know you better",
+        "probability": 0.6294,
+        "risk_level": "HIGH",
+        "expected_category": "grooming"
+      },
+      {
+        "text": "Let's keep this conversation between us, okay?",
+        "probability": 0.4749,
+        "risk_level": "MEDIUM",
+        "expected_category": "grooming"
+      },
+      {
+        "text": "I'm much older but I find you very attractive",
+        "probability": 0.0631,
+        "risk_level": "LOW",
+        "expected_category": "grooming"
+      },
+      {
+        "text": "Do your parents know you're talking to me?",
+        "probability": 0.2353,
+        "risk_level": "LOW",
+        "expected_category": "grooming"
+      },
+      {
+        "text": "I can help you with money if you spend time with me",
+        "probability": 0.8917,
+        "risk_level": "CRITICAL",
+        "expected_category": "grooming"
+      },
+      {
+        "text": "You don't need to tell anyone about our chats",
+        "probability": 0.8504,
+        "risk_level": "CRITICAL",
+        "expected_category": "grooming"
+      }
+    ]
+  },
+  "safe": {
+    "correct": 9,
+    "total": 10,
+    "predictions": [
+      {
+        "text": "Hi, how are you doing today?",
+        "probability": 0.0557,
+        "risk_level": "LOW",
+        "expected_category": "safe"
+      },
+      {
+        "text": "What's your favorite book?",
+        "probability": 0.0075,
+        "risk_level": "LOW",
+        "expected_category": "safe"
+      },
+      {
+        "text": "I went to the store yesterday",
+        "probability": 0.0102,
+        "risk_level": "LOW",
+        "expected_category": "safe"
+      },
+      {
+        "text": "The weather is nice today",
+        "probability": 0.0624,
+        "risk_level": "LOW",
+        "expected_category": "safe"
+      },
+      {
+        "text": "What time is the meeting tomorrow?",
+        "probability": 0.0187,
+        "risk_level": "LOW",
+        "expected_category": "safe"
+      },
+      {
+        "text": "I finished my homework",
+        "probability": 0.015,
+        "risk_level": "LOW",
+        "expected_category": "safe"
+      },
+      {
+        "text": "Let's play some games",
+        "probability": 0.1348,
+        "risk_level": "LOW",
+        "expected_category": "safe"
+      },
+      {
+        "text": "My favorite color is blue",
+        "probability": 0.0163,
+        "risk_level": "LOW",
+        "expected_category": "safe"
+      },
+      {
+        "text": "I like pizza and ice cream",
+        "probability": 0.0262,
+        "risk_level": "LOW",
+        "expected_category": "safe"
+      },
+      {
+        "text": "See you at school tomorrow",
+        "probability": 0.4421,
+        "risk_level": "MEDIUM",
+        "expected_category": "safe"
+      }
+    ]
+  },
+  "ambiguous": {
+    "correct": 5,
+    "total": 5,
+    "predictions": [
+      {
+        "text": "Can we talk?",
+        "probability": 0.0225,
+        "risk_level": "LOW",
+        "expected_category": "ambiguous"
+      },
+      {
+        "text": "What's up?",
+        "probability": 0.038,
+        "risk_level": "LOW",
+        "expected_category": "ambiguous"
+      },
+      {
+        "text": "You seem nice",
+        "probability": 0.6429,
+        "risk_level": "HIGH",
+        "expected_category": "ambiguous"
+      },
+      {
+        "text": "Let's be friends",
+        "probability": 0.782,
+        "risk_level": "HIGH",
+        "expected_category": "ambiguous"
+      },
+      {
+        "text": "Tell me about yourself",
+        "probability": 0.8711,
+        "risk_level": "CRITICAL",
+        "expected_category": "ambiguous"
+      }
+    ]
+  }
+}

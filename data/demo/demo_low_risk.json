@@ -1,0 +1,22 @@
+{
+  "session_id": "demo-low-risk",
+  "platform": "json_upload",
+  "timestamp": "2025-01-01T18:00:00Z",
+  "risk_score": 18,
+  "confidence": 0.86,
+  "grooming_stage": "trust_building",
+  "flags": [],
+  "categories": [],
+  "stage_progression": {
+    "trust_building": false,
+    "isolation": false,
+    "secrecy": false,
+    "escalation": false
+  },
+  "recommendation": "monitor",
+  "drift_signals": {
+    "late_night_messages": false,
+    "message_frequency_spike": false,
+    "new_unknown_contact": false
+  }
+}
