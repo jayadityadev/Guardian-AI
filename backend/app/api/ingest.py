@@ -1,16 +1,17 @@
 from datetime import datetime
 from uuid import UUID
+import os
 
-from fastapi import APIRouter, Depends, File, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from app.api.alerts import broadcast_analysis_complete
 from app.core.database import get_db
 from app.models.session import SessionAnalysis
 from app.services.ml_bridge import analyse
 from app.services.stt import WhisperTranscriber
 import tempfile
-import json
 
 
 router = APIRouter(tags=["ingest"])
@@ -39,7 +40,7 @@ class AudioIngestResponse(BaseModel):
 
 
 @router.post("/ingest", response_model=IngestResponse, status_code=status.HTTP_202_ACCEPTED)
-def ingest(payload: IngestRequest, db: Session = Depends(get_db)) -> IngestResponse:
+async def ingest(payload: IngestRequest, db: Session = Depends(get_db)) -> IngestResponse:
 	"""
 	Ingest chat messages for grooming pattern analysis.
 	
@@ -48,6 +49,8 @@ def ingest(payload: IngestRequest, db: Session = Depends(get_db)) -> IngestRespo
 	"""
 	# Convert Pydantic models to dicts for ML pipeline
 	messages = [m.model_dump() for m in payload.messages]
+	if not messages:
+		raise HTTPException(status_code=400, detail="invalid input")
 	
 	# Run ML analysis
 	analysis_result = analyse(messages)
@@ -66,12 +69,17 @@ def ingest(payload: IngestRequest, db: Session = Depends(get_db)) -> IngestRespo
 	db.add(session_row)
 	db.commit()
 	db.refresh(session_row)
+	await broadcast_analysis_complete(
+		session_id=session_row.id,
+		risk_score=session_row.risk_score or 0,
+		recommendation=session_row.recommendation or "monitor",
+	)
 	
 	return IngestResponse(session_id=session_row.id, status="processing")
 
 
 @router.post("/ingest/audio", response_model=AudioIngestResponse, status_code=status.HTTP_202_ACCEPTED)
-def ingest_audio(file: UploadFile = File(...), db: Session = Depends(get_db)) -> AudioIngestResponse:
+async def ingest_audio(file: UploadFile = File(...), db: Session = Depends(get_db)) -> AudioIngestResponse:
 	"""
 	Ingest audio file for grooming pattern analysis.
 	
@@ -79,8 +87,12 @@ def ingest_audio(file: UploadFile = File(...), db: Session = Depends(get_db)) ->
 	runs same ML analysis pipeline as JSON ingest, stores results in DB.
 	"""
 	# Save uploaded file to temp location
+	audio_bytes = file.file.read()
+	if not audio_bytes:
+		raise HTTPException(status_code=400, detail="invalid input")
+
 	with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
-		tmp.write(file.file.read())
+		tmp.write(audio_bytes)
 		tmp_path = tmp.name
 	
 	try:
@@ -107,8 +119,12 @@ def ingest_audio(file: UploadFile = File(...), db: Session = Depends(get_db)) ->
 		db.add(session_row)
 		db.commit()
 		db.refresh(session_row)
+		await broadcast_analysis_complete(
+			session_id=session_row.id,
+			risk_score=session_row.risk_score or 0,
+			recommendation=session_row.recommendation or "monitor",
+		)
 		
 		return AudioIngestResponse(session_id=session_row.id, transcript=transcript, status="processing")
 	finally:
-		import os
 		os.unlink(tmp_path)

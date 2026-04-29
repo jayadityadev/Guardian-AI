@@ -13,9 +13,9 @@ router = APIRouter(tags=["session"])
 
 
 class SessionListItem(BaseModel):
-	id: UUID
+	session_id: UUID
 	platform: str
-	created_at: datetime
+	timestamp: datetime
 	risk_score: int | None
 	recommendation: str | None
 	
@@ -96,9 +96,9 @@ def get_sessions(
 	
 	return [
 		SessionListItem(
-			id=s.id,
+			session_id=s.id,
 			platform=s.platform,
-			created_at=s.created_at,
+			timestamp=s.created_at,
 			risk_score=s.risk_score,
 			recommendation=s.recommendation,
 		)
