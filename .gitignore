@@ -27,10 +27,6 @@ venv/
 ENV/
 env/
 .env
-*/.venv/
-
-# Environment variables
-*/.env
 
 # IDE
 .vscode/
@@ -55,6 +51,3 @@ logs/
 # Windows
 *.Zone.Identifier
 *:Zone.Identifier
-
-# Large ML models
-ml/models/
