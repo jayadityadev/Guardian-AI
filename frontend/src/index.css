@@ -158,24 +158,42 @@
 }
 
 :root {
-  --background: 30 35% 93%;
-  --foreground: 0 0% 5%;
-  --card: 30 35% 93%;
-  --card-foreground: 0 0% 5%;
-  --popover: 30 35% 93%;
-  --popover-foreground: 0 0% 5%;
-  --primary: 181 84% 26%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 24 15% 15%;
-  --secondary-foreground: 30 35% 93%;
-  --muted: 33 30% 87%;
-  --muted-foreground: 24 10% 30%;
-  --accent: 333 70% 47%;
-  --accent-foreground: 0 0% 100%;
+  /* User Palette: Light Mode */
+  --primary-100: 202 60% 90%; /* #d4eaf7 */
+  --primary-200: 201 32% 78%; /* #b6ccd8 */
+  --primary-300: 210 2% 24%; /* #3b3c3d */
+  --accent-100: 200 81% 69%; /* #71c4ef */
+  --accent-200: 196 100% 27%; /* #00668c */
+  --text-100: 0 1% 11%; /* #1d1c1c */
+  --text-200: 202 16% 23%; /* #313d44 */
+  --bg-100: 45 100% 99%; /* #fffefb */
+  --bg-200: 45 19% 95%; /* #f5f4f1 */
+  --bg-300: 45 4% 79%; /* #cccbc8 */
+
+  /* Shadcn Mappings */
+  --background: var(--bg-100);
+  --foreground: var(--text-100);
+  --card: var(--bg-100);
+  --card-foreground: var(--text-100);
+  --popover: var(--bg-100);
+  --popover-foreground: var(--text-100);
+  
+  --primary: var(--accent-200);
+  --primary-foreground: var(--bg-100);
+  
+  --secondary: var(--primary-100);
+  --secondary-foreground: var(--text-200);
+  
+  --muted: var(--bg-200);
+  --muted-foreground: var(--text-200);
+  
+  --accent: var(--accent-100);
+  --accent-foreground: var(--text-100);
+  
   --destructive: 0 84.2% 60.2%;
-  --border: 33 25% 80%;
-  --input: 33 25% 80%;
-  --ring: 181 84% 26%;
+  --border: var(--bg-300);
+  --input: var(--bg-300);
+  --ring: var(--accent-200);
   
   --brand-pink: 343 60% 78%;
   --brand-sky: 199 60% 80%;
@@ -188,65 +206,72 @@
   --chart-5: 27 87% 67%;
   --radius: 0.625rem;
   
-  --sidebar: 30 35% 93%;
-  --sidebar-foreground: 0 0% 5%;
-  --sidebar-primary: 181 84% 26%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 33 30% 87%;
-  --sidebar-accent-foreground: 24 10% 30%;
-  --sidebar-border: 33 25% 80%;
-  --sidebar-ring: 181 84% 26%;
+  --sidebar: var(--bg-100);
+  --sidebar-foreground: var(--text-100);
+  --sidebar-primary: var(--accent-200);
+  --sidebar-primary-foreground: var(--bg-100);
+  --sidebar-accent: var(--bg-200);
+  --sidebar-accent-foreground: var(--text-100);
+  --sidebar-border: var(--bg-300);
+  --sidebar-ring: var(--accent-200);
 }
 
 .dark {
-  /* Rich, warm espresso background based on brand's dark bar (#2B2520) */
-  --background: 24 15% 10%;
-  --foreground: 30 35% 93%;
-  --card: 24 15% 13%;
-  --card-foreground: 30 35% 93%;
-  --popover: 24 15% 13%;
-  --popover-foreground: 30 35% 93%;
+  /* User Palette: Dark Mode */
+  --primary-100: 215 51% 25%; /* #1F3A5F */
+  --primary-200: 218 30% 43%; /* #4d648d */
+  --primary-300: 220 66% 81%; /* #acc2ef */
+  --accent-100: 214 36% 37%; /* #3D5A80 */
+  --accent-200: 208 100% 90%; /* #cee8ff */
+  --text-100: 0 0% 100%; /* #FFFFFF */
+  --text-200: 0 0% 88%; /* #e0e0e0 */
+  --bg-100: 215 51% 12%; /* #0F1C2E */
+  --bg-200: 217 33% 18%; /* #1f2b3e */
+  --bg-300: 218 23% 28%; /* #374357 */
+
+  /* Shadcn Mappings */
+  --background: var(--bg-100);
+  --foreground: var(--text-100);
+  --card: var(--bg-100);
+  --card-foreground: var(--text-100);
+  --popover: var(--bg-100);
+  --popover-foreground: var(--text-100);
   
-  /* Brightened primary teal for strong contrast on dark backgrounds */
-  --primary: 181 70% 40%;
-  --primary-foreground: 181 90% 10%;
+  --primary: var(--accent-200);
+  --primary-foreground: var(--bg-100);
   
-  /* Harmonious elevated surfaces */
-  --secondary: 24 10% 20%;
-  --secondary-foreground: 30 35% 93%;
-  --muted: 24 10% 18%;
-  --muted-foreground: 30 15% 70%;
+  --secondary: var(--bg-200);
+  --secondary-foreground: var(--text-200);
   
-  /* Brightened magenta accent */
-  --accent: 333 70% 55%;
-  --accent-foreground: 0 0% 100%;
-  --destructive: 0 75% 60%;
+  --muted: var(--bg-200);
+  --muted-foreground: var(--text-200);
   
-  /* Subtle warm borders */
-  --border: 24 10% 22%;
-  --input: 24 10% 22%;
-  --ring: 181 70% 40%;
+  --accent: var(--primary-100);
+  --accent-foreground: var(--text-100);
   
-  /* Keep brand illustration tokens the same (they are pastels) */
+  --destructive: 0 62.8% 30.6%;
+  --border: var(--bg-300);
+  --input: var(--bg-300);
+  --ring: var(--accent-200);
+  
   --brand-pink: 343 60% 78%;
   --brand-sky: 199 60% 80%;
   --brand-yellow: 38 85% 68%;
 
-  --chart-1: 12 76% 61%;
-  --chart-2: 173 58% 39%;
-  --chart-3: 197 37% 50%;
-  --chart-4: 43 74% 66%;
-  --chart-5: 27 87% 67%;
+  --chart-1: 220 70% 50%;
+  --chart-2: 160 60% 45%;
+  --chart-3: 30 80% 55%;
+  --chart-4: 280 65% 60%;
+  --chart-5: 340 75% 55%;
   
-  /* Sidebar matching the theme */
-  --sidebar: 24 15% 12%;
-  --sidebar-foreground: 30 35% 93%;
-  --sidebar-primary: 181 70% 40%;
-  --sidebar-primary-foreground: 181 90% 10%;
-  --sidebar-accent: 24 10% 18%;
-  --sidebar-accent-foreground: 30 35% 93%;
-  --sidebar-border: 24 10% 22%;
-  --sidebar-ring: 181 70% 40%;
+  --sidebar: var(--bg-100);
+  --sidebar-foreground: var(--text-100);
+  --sidebar-primary: var(--accent-200);
+  --sidebar-primary-foreground: var(--bg-100);
+  --sidebar-accent: var(--bg-200);
+  --sidebar-accent-foreground: var(--text-100);
+  --sidebar-border: var(--bg-300);
+  --sidebar-ring: var(--accent-200);
 }
 
 ::view-transition-old(root),
