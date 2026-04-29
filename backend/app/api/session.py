@@ -18,7 +18,7 @@ class SessionListItem(BaseModel):
 	timestamp: datetime
 	risk_score: int | None
 	recommendation: str | None
-	
+
 	class Config:
 		from_attributes = True
 
@@ -35,7 +35,7 @@ class RiskJSON(BaseModel):
 	stage_progression: dict | None = None
 	recommendation: str | None = None
 	drift_signals: dict | None = None
-	
+
 	class Config:
 		from_attributes = True
 
@@ -44,21 +44,21 @@ class RiskJSON(BaseModel):
 def get_session(session_id: UUID, db: Session = Depends(get_db)) -> RiskJSON:
 	"""
 	Get full risk assessment for a session.
-	
+
 	Returns the complete risk JSON including scores, flags, drift signals, and recommendations.
 	"""
 	session = db.query(SessionAnalysis).filter(SessionAnalysis.id == session_id).first()
-	
+
 	if not session:
 		raise HTTPException(status_code=404, detail="Session not found")
-	
+
 	# Extract categories from flags if available
 	categories = []
 	if isinstance(session.raw_flag_json, list):
 		categories = list({flag.get("type") for flag in session.raw_flag_json if "type" in flag})
 	elif session.grooming_stage:
 		categories = [session.grooming_stage]
-	
+
 	return RiskJSON(
 		session_id=session.id,
 		platform=session.platform,
@@ -82,7 +82,7 @@ def get_sessions(
 ) -> list[SessionListItem]:
 	"""
 	Get list of all past sessions.
-	
+
 	Returns session IDs, timestamps, risk scores, and recommendations.
 	Supports pagination via limit and offset.
 	"""
@@ -93,7 +93,7 @@ def get_sessions(
 		.offset(offset)
 		.all()
 	)
-	
+
 	return [
 		SessionListItem(
 			session_id=s.id,
