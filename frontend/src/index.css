@@ -1,0 +1,91 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@layer base {
+  body {
+    background: linear-gradient(to bottom right, #FAFAFA, #F3F4FF);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+}
+
+@layer components {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+  }
+
+  .glass-card:hover {
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+  }
+  
+  .ambient-shadow {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+  }
+
+  /* 3D Blobs */
+  .blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.15;
+    z-index: -1;
+  }
+
+  .blob-1 {
+    width: 400px;
+    height: 400px;
+    background: #6C63FF;
+    top: -100px;
+    left: -100px;
+  }
+
+  .blob-2 {
+    width: 500px;
+    height: 500px;
+    background: #006b7a;
+    bottom: -150px;
+    right: -100px;
+  }
+  
+  .blob-3 {
+    width: 300px;
+    height: 300px;
+    background: #cd3b7d;
+    top: 40%;
+    left: 60%;
+  }
+
+  .pulse-dot {
+    animation: pulse 2s infinite;
+  }
+
+  .alert-pulse {
+     animation: alertPulse 3s infinite;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+@keyframes alertPulse {
+  0% { background-color: rgba(255, 218, 214, 0.2); }
+  50% { background-color: rgba(255, 218, 214, 0.5); }
+  100% { background-color: rgba(255, 218, 214, 0.2); }
+}
