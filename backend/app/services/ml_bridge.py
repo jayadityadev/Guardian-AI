@@ -1,31 +1,26 @@
 """
 ML Bridge: Interface to Jaggu's ML pipeline.
 
-For Phase 1, this is a mock that returns realistic data.
-When Jaggu's analyse() is ready, swap the implementation.
+This module prefers calling a remote inference API when `ML_API_URL` is set.
+If the remote call fails, it falls back to the local mock implementation so
+the backend remains functional for development and testing.
 """
 
+import logging
+import os
 from datetime import datetime
 from uuid import uuid4
 
+import requests
 
-def analyse(messages: list[dict]) -> dict:
+
+def _mock_analyse(messages: list[dict]) -> dict:
     """
-    Analyse a conversation for grooming patterns.
-    
-    Args:
-        messages: List of message dicts with sender, text, timestamp
-        
-    Returns:
-        Risk analysis JSON matching the project contract schema
+    Local mock analysis (original Phase 1 behaviour).
     """
-    # MOCK IMPLEMENTATION — Replace with Jaggu's real ML when ready
-    
-    # Simulate scoring based on message count and keywords
-    risk_score = min(100, len(messages) * 5 + 30)  # Dummy calculation
+    risk_score = min(100, len(messages) * 5 + 30)
     confidence = 0.72 + (len(messages) * 0.01)
-    
-    # Mock grooming stage detection
+
     all_text = " ".join([m.get("text", "").lower() for m in messages])
     if "mature" in all_text or "special" in all_text:
         grooming_stage = "trust_building"
@@ -35,8 +30,7 @@ def analyse(messages: list[dict]) -> dict:
         grooming_stage = "gift_lure"
     else:
         grooming_stage = "trust_building"
-    
-    # Mock flags
+
     mock_flags = [
         {
             "type": "trust_building",
@@ -45,15 +39,14 @@ def analyse(messages: list[dict]) -> dict:
             "message_index": 0,
         }
     ]
-    
-    # Recommendation based on risk score
+
     if risk_score > 80:
         recommendation = "escalate_platform"
     elif risk_score > 60:
         recommendation = "alert_parent"
     else:
         recommendation = "monitor"
-    
+
     return {
         "session_id": str(uuid4()),
         "platform": "json_upload",
@@ -76,3 +69,29 @@ def analyse(messages: list[dict]) -> dict:
             "new_unknown_contact": True,
         },
     }
+
+
+def analyse(messages: list[dict]) -> dict:
+    """
+    Analyse a conversation for grooming patterns.
+
+    Behavior:
+    - If `ML_API_URL` env var is set, POST the messages to that URL and return
+      the JSON response (expects contract-shaped JSON).
+    - On any network/error, fall back to the local mock implementation.
+    """
+    ml_url = os.getenv("ML_API_URL")
+    ml_key = os.getenv("ML_API_KEY")
+
+    if ml_url:
+        try:
+            headers = {"Content-Type": "application/json"}
+            if ml_key:
+                headers["Authorization"] = f"Bearer {ml_key}"
+            resp = requests.post(ml_url, json={"messages": messages}, headers=headers, timeout=30)
+            resp.raise_for_status()
+            return resp.json()
+        except Exception as exc:  # fallback to local mock
+            logging.exception("Remote ML inference failed, falling back to local mock: %s", exc)
+
+    return _mock_analyse(messages)
