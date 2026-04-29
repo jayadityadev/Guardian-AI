@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
 	app_name: str = "Guardian AI Backend"
 	app_env: str = "dev"
+	cors_origins: str | None = None
 
 	database_host: str | None = None
 	database_port: int | None = None
@@ -43,6 +44,21 @@ class Settings(BaseSettings):
 			f"{self.database_user}:{self.database_password}@"
 			f"{self.database_host}:{self.database_port}/{self.database_name}"
 		)
+
+	@property
+	def allowed_cors_origins(self) -> list[str]:
+		if self.cors_origins:
+			return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+
+		if self.app_env.lower() == "dev":
+			return [
+				"http://localhost:3000",
+				"http://127.0.0.1:3000",
+				"http://localhost:5173",
+				"http://127.0.0.1:5173",
+			]
+
+		return []
 
 
 @lru_cache
