@@ -61,7 +61,7 @@ const SessionHistory = () => {
         <p className="font-body-md text-body-md text-on-surface-variant mt-2">Review historical monitoring sessions and associated risk assessments.</p>
       </div>
 
-      <div className="bg-white/70 backdrop-blur-[20px] rounded-[24px] border border-white/50 shadow-[0_20px_40px_rgba(0,0,0,0.03)] overflow-hidden">
+      <div className="glass-card rounded-[24px] overflow-hidden">
         {/* Table header */}
         <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-outline-variant/30 bg-surface-container-low/50">
           <div className="col-span-3 font-label-md text-label-md text-on-surface-variant">Session ID</div>
