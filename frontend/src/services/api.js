@@ -1,6 +1,6 @@
 import demoSession from '../mock/demoSession.json'
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+const API_BASE = import.meta.env.VITE_API_BASE_URL || ''
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true'
 
 /**
@@ -179,7 +179,11 @@ export async function checkHealth() {
  * Build WebSocket URL for /ws/alerts
  */
 export function getWsAlertsUrl() {
-    return import.meta.env.VITE_WS_URL || (API_BASE.replace(/^http/, 'ws') + '/ws/alerts')
+    if (import.meta.env.VITE_WS_URL) return import.meta.env.VITE_WS_URL
+    if (API_BASE) return API_BASE.replace(/^http/, 'ws') + '/ws/alerts'
+    // Proxy mode: derive WS URL from current page host
+    const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    return `${proto}//${window.location.host}/ws/alerts`
 }
 
 export default {
