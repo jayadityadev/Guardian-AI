@@ -176,12 +176,12 @@ You own everything between the frontend and the ML model. FastAPI, PostgreSQL, W
 ### Deliverables checklist
 
 #### Phase 0 (1500–1700) — Setup
-- [ ] Init FastAPI project with `uv` — `uv init guardian-backend`
-- [ ] Install deps: `fastapi uvicorn sqlalchemy psycopg2 python-multipart websockets openai-whisper groq`
-- [ ] Connect to PostgreSQL — verify connection works
-- [ ] Create DB schema (see below)
-- [ ] Stub all three endpoints (return dummy 200)
-- [ ] Share JSON contract with team — **lock it at 1700**
+- [x] Init FastAPI project with `uv` — `uv init guardian-backend`
+- [x] Install deps: `fastapi uvicorn sqlalchemy psycopg2 python-multipart websockets openai-whisper groq`
+- [x] Connect to PostgreSQL — verify connection works
+- [x] Create DB schema (see below)
+- [x] Stub all three endpoints (return dummy 200)
+- [x] Share JSON contract with team — **lock it at 1700**
 
 #### Phase 1 (1700–2100) — Core build
 - [ ] `POST /ingest` — accepts JSON body (array of messages), returns `session_id`
