@@ -26,6 +26,7 @@ Current status (after running scripts):
 What I prepared but did NOT run:
 
 - `ml/train_prepare.py` — helper script that loads `augmented_train.csv`, fits a `TfidfVectorizer`, and writes `ml/models/grooming_model/vectorizer.joblib` and a training manifest. (Training step is intentionally not executed.)
+- `ml/train_prepared.py` — the actual handoff trainer. It consumes `data/processed/augmented_train.csv`, `final_val.csv`, and `final_test.csv`, trains a class-weighted TF-IDF + LogisticRegression model, tunes the threshold on validation data, and saves the trained model plus summaries. I did not run it here.
 
 How to reproduce locally (from repo root):
 
@@ -36,6 +37,9 @@ python3 ml/preprocessing/augment_hinglish.py
 
 # then (optional) prepare vectorizer before training
 python3 ml/train_prepare.py
+
+# or run the full prepared-data trainer (does not clean data again)
+python3 ml/train_prepared.py
 ```
 
 If you want stricter augmentation or different rules (back-translation / LLM paraphrase), I can add an optional LLM-backed augmenter, but that requires API keys and runtime time.
