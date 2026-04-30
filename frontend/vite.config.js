@@ -15,23 +15,23 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       '/ingest': {
-        target: 'http://localhost:8000',
+        target: 'https://guardian-ai-api-c2d5132c.fastapicloud.dev',
         changeOrigin: true,
       },
       '/session': {
-        target: 'http://localhost:8000',
+        target: 'https://guardian-ai-api-c2d5132c.fastapicloud.dev',
         changeOrigin: true,
       },
       '/sessions': {
-        target: 'http://localhost:8000',
+        target: 'https://guardian-ai-api-c2d5132c.fastapicloud.dev',
         changeOrigin: true,
       },
       '/health': {
-        target: 'http://localhost:8000',
+        target: 'https://guardian-ai-api-c2d5132c.fastapicloud.dev',
         changeOrigin: true,
       },
       '/ws': {
-        target: 'ws://localhost:8000',
+        target: 'wss://guardian-ai-api-c2d5132c.fastapicloud.dev',
         ws: true,
       },
     },

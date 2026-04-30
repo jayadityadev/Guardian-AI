@@ -19,12 +19,12 @@ const severityBadge = (severity) => {
 const recommendationMeta = (rec) => {
   switch (rec) {
     case 'alert_parent':
-      return { className: 'bg-amber-500/10 border-amber-500/20 text-amber-700 dark:text-amber-400', text: 'Unusual patterns detected. Recommended: speak with your child.' }
+      return { className: 'bg-amber-50 border-amber-200 text-amber-900 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-300', text: 'Unusual patterns detected. Recommended: speak with your child.' }
     case 'escalate':
     case 'escalate_platform':
-      return { className: 'bg-red-500/10 border-red-500/20 text-red-700 dark:text-red-400', text: 'High-risk behaviour detected. Report to platform and authorities.' }
+      return { className: 'bg-red-50 border-red-200 text-red-900 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300', text: 'High-risk behaviour detected. Report to platform and authorities.' }
     default:
-      return { className: 'bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-400', text: 'Continue monitoring. No immediate action needed.' }
+      return { className: 'bg-blue-50 border-blue-200 text-blue-900 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300', text: 'Continue monitoring. No immediate action needed.' }
   }
 }
 
@@ -162,8 +162,8 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* Sidebar: Past sessions */}
         <aside className="md:col-span-3">
-          <div className="glass-card rounded-2xl p-4 h-full hover:-translate-y-2 transition-all duration-300 group cursor-pointer border border-border/50 hover:border-primary/50 relative overflow-hidden shadow-sm hover:shadow-xl hover:shadow-primary/5">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-[40px] -mr-10 -mt-10 transition-transform duration-500 group-hover:scale-150 pointer-events-none"></div>
+          <div className="glass-card rounded-2xl p-5 h-full group cursor-pointer relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-[40px] -mr-10 -mt-10 transition-transform duration-500 group-hover:scale-150 pointer-events-none"></div>
             <div className="relative z-10 flex items-center justify-between mb-4">
               <h3 className="font-headline-sm m-0">Past sessions</h3>
               <button className="text-sm text-primary" onClick={loadSessions}>Refresh</button>
@@ -178,7 +178,7 @@ const Dashboard = () => {
                 {sessions.slice(0, 12).map(sess => (
                   <li 
                     key={sess.session_id} 
-                    className={`p-3 rounded-xl cursor-pointer group transition-all duration-300 border border-transparent hover:border-border/50 hover:bg-muted/30 ${(routeSessionId || session?.session_id) === sess.session_id ? 'ring-1 ring-primary/30 bg-primary/[0.03] border-primary/20' : ''}`} 
+                    className={`p-3 rounded-xl cursor-pointer group transition-all duration-300 border border-transparent hover:border-border hover:bg-muted ${(routeSessionId || session?.session_id) === sess.session_id ? 'ring-2 ring-primary/20 bg-primary/5 border-primary/20' : ''}`} 
                     onClick={() => { navigate(`/dashboard/${sess.session_id}`) }}
                   >
                     <div className="flex items-center justify-between gap-3">
@@ -221,8 +221,8 @@ const Dashboard = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Risk Score + Stage */}
-            <div className="lg:col-span-6 glass-card rounded-2xl p-6 flex flex-col items-center min-h-0 hover:-translate-y-2 transition-all duration-300 group cursor-pointer border border-border/50 hover:border-primary/50 relative overflow-hidden h-full shadow-sm hover:shadow-xl hover:shadow-primary/5">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-[40px] -mr-10 -mt-10 transition-transform duration-500 group-hover:scale-150 pointer-events-none"></div>
+            <div className="lg:col-span-6 glass-card rounded-2xl p-8 flex flex-col items-center group cursor-pointer relative overflow-hidden h-full">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-primary/5 rounded-full blur-[50px] -mr-12 -mt-12 transition-transform duration-500 group-hover:scale-150 pointer-events-none"></div>
               <div className="w-full flex items-center justify-between mb-4 relative z-10">
                 <div className="text-sm text-muted-foreground uppercase tracking-widest">Risk Score</div>
                 <div className="text-sm text-muted-foreground">Confidence: {Math.round((s.confidence || 0) * 100)}%</div>
@@ -254,7 +254,7 @@ const Dashboard = () => {
                     }}
                   />
                 </svg>
-                <div className="text-center relative z-10 flex flex-col items-center justify-center bg-card/40 backdrop-blur-sm rounded-full w-28 h-28 sm:w-32 sm:h-32 shadow-inner border border-border/50">
+                <div className="text-center relative z-10 flex flex-col items-center justify-center bg-card rounded-full w-28 h-28 sm:w-32 sm:h-32 shadow-inner border border-border">
                   <div className={`font-display-xl text-5xl font-bold ${getRiskBadge(s.risk_score).textColor}`}>{s.risk_score}</div>
                   <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mt-1">/ 100</div>
                 </div>
@@ -306,15 +306,15 @@ const Dashboard = () => {
             </div>
 
             {/* Center: Flagged snippets & details */}
-            <div className="lg:col-span-6 glass-card rounded-2xl p-6 flex flex-col min-h-0 hover:-translate-y-2 transition-all duration-300 group cursor-pointer border border-border/50 hover:border-primary/50 relative overflow-hidden shadow-sm hover:shadow-xl hover:shadow-primary/5">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-[40px] -mr-10 -mt-10 transition-transform duration-500 group-hover:scale-150 pointer-events-none"></div>
+            <div className="lg:col-span-6 glass-card rounded-2xl p-8 flex flex-col group cursor-pointer relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-primary/5 rounded-full blur-[50px] -mr-12 -mt-12 transition-transform duration-500 group-hover:scale-150 pointer-events-none"></div>
               <div className="relative z-10 flex items-center justify-between mb-4">
                 <h3 className="font-headline-md">Flagged snippets</h3>
                 <div className="text-sm text-muted-foreground">{s.flags ? s.flags.length : 0} flags</div>
               </div>
               <div className="flex flex-col gap-3 overflow-y-auto max-h-[340px] pr-2 min-h-0">
                 {s.flags && s.flags.length > 0 ? s.flags.map((f, idx) => (
-                  <div key={idx} className="p-3 rounded-xl border border-border/50 bg-muted/30 overflow-hidden">
+                  <div key={idx} className="p-3 rounded-xl border border-border bg-muted/50 overflow-hidden">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-3">
                         <span className={`${severityBadge(f.severity)} px-2 py-0.5 rounded-md text-xs font-medium`}>{f.type.replace(/_/g, ' ')}</span>
@@ -331,8 +331,8 @@ const Dashboard = () => {
             </div>
 
             {/* Right: Drift signals (moved below, full width) */}
-            <div className="lg:col-span-12 glass-card rounded-2xl p-6 flex flex-col hover:-translate-y-2 transition-all duration-300 group cursor-pointer border border-border/50 hover:border-primary/50 relative overflow-hidden shadow-sm hover:shadow-xl hover:shadow-primary/5">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-[40px] -mr-10 -mt-10 transition-transform duration-500 group-hover:scale-150 pointer-events-none"></div>
+            <div className="lg:col-span-12 glass-card rounded-2xl p-8 flex flex-col group cursor-pointer relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 rounded-full blur-[60px] -mr-16 -mt-16 transition-transform duration-500 group-hover:scale-150 pointer-events-none"></div>
               
               <div className="relative z-10 flex items-center justify-between mb-6">
                 <h3 className="font-headline-md flex items-center gap-2 m-0 text-foreground">

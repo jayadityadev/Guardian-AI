@@ -22,4 +22,4 @@ The frontend uses a single canonical API adapter at `src/services/api.js` which 
 - Toggle mock mode with `VITE_USE_MOCK=true` to use `src/mock/demoSession.json` and localStorage fallbacks.
 - Configure `VITE_API_BASE_URL` to point the adapter at your backend in production or local testing.
 
-Example: `VITE_USE_MOCK=true VITE_API_BASE_URL=http://localhost:8000 npm run dev`
+Example: `VITE_USE_MOCK=true VITE_API_BASE_URL=https://guardian-ai-api-c2d5132c.fastapicloud.dev npm run dev`
