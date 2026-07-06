@@ -1,5 +1,4 @@
 import os
-from fastapi import FastAPI, HTTPException
 import modal
 
 # 1. Define the Modal App
@@ -22,9 +21,6 @@ image = (
     )
 )
 
-# Create FastAPI app
-web_app = FastAPI()
-
 # 3. Mount local ml directory
 # This uploads your local ml/ folder code into the serverless container
 ml_mount = modal.Mount.from_local_dir(
@@ -46,6 +42,11 @@ ml_mount = modal.Mount.from_local_dir(
 )
 @modal.asgi_app()
 def inference_endpoint():
+    # Import FastAPI inside the function to prevent local ModuleNotFoundError during deploy checks
+    from fastapi import FastAPI, HTTPException
+    
+    web_app = FastAPI()
+    
     import sys
     sys.path.insert(0, "/root")
     
