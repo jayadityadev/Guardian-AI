@@ -42,11 +42,6 @@ async def db_connection_exception_handler(_: Request, __: OperationalError):
     return JSONResponse(status_code=503, content={"error": "database unavailable"})
 
 
-@app.on_event("startup")
-def on_startup() -> None:
-	WhisperTranscriber.load_model()
-
-
 app.include_router(ingest_router)
 app.include_router(session_router)
 app.include_router(alerts_router)
