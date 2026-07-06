@@ -20,7 +20,7 @@ def _get_model_path():
 
 
 def _load_model():
-    """Lazy-load the BERT model and tokenizer"""
+    """Lazy-load the BERT model and tokenizer from local folder or Hugging Face Hub"""
     global _model, _tokenizer
     
     if _model is not None and _tokenizer is not None:
@@ -28,20 +28,33 @@ def _load_model():
     
     model_path = _get_model_path()
     
-    if not model_path.exists():
-        raise FileNotFoundError(
-            f"BERT model not found at {model_path}\n"
-            f"Run Colab training notebook and save under saved_model_bert/"
-        )
-    
+    # 1. Try local path first
+    if model_path.exists():
+        try:
+            _tokenizer = AutoTokenizer.from_pretrained(str(model_path))
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            _model = AutoModelForSequenceClassification.from_pretrained(str(model_path)).to(device)
+            print(f"Successfully loaded BERT model from local path: {model_path} on {device}")
+            return _model, _tokenizer
+        except Exception as e:
+            print(f"Warning: Failed to load from local path: {e}. Falling back to Hugging Face Hub...")
+            
+    # 2. Fall back to Hugging Face Hub
+    hf_model_id = "jayadityadev/guardian-ai-grooming"
     try:
-        _tokenizer = AutoTokenizer.from_pretrained(str(model_path))
+        print(f"Loading BERT model from Hugging Face Hub: {hf_model_id} ...")
+        _tokenizer = AutoTokenizer.from_pretrained(hf_model_id)
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        _model = AutoModelForSequenceClassification.from_pretrained(str(model_path)).to(device)
-        print(f"Successfully loaded BERT model from {model_path} on {device}")
+        _model = AutoModelForSequenceClassification.from_pretrained(hf_model_id).to(device)
+        print(f"Successfully loaded BERT model from Hugging Face Hub on {device}")
     except Exception as e:
-        raise RuntimeError(f"Failed to load BERT model: {e}")
-    
+        raise RuntimeError(
+            f"Failed to load BERT model from both local path and Hugging Face Hub.\n"
+            f"Local error: model not found at {model_path}\n"
+            f"Hugging Face Hub error ({hf_model_id}): {e}\n"
+            f"Please run the Google Colab training notebook to generate the model, or push it to your Hugging Face account."
+        )
+        
     return _model, _tokenizer
 
 

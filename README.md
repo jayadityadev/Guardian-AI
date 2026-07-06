@@ -77,6 +77,10 @@ flowchart TD
    DATABASE_URL=postgresql+psycopg2://user:pass@host/dbname?sslmode=require
    GROQ_API_KEY=your_groq_api_key
    NVIDIA_API_KEY=your_nvidia_api_key
+
+   # Optional: Configure if you deploy the ML sequence classifier separately (e.g. Modal)
+   # ML_API_URL=https://your-modal-app.modal.run/infer
+   # ML_API_KEY=optional_bearer_token
    ```
 2. Create a `.env` file in the `frontend/` directory:
    ```env
@@ -92,7 +96,7 @@ Choose **one** of the following options to load the DistilBERT sequence grooming
 
 #### Option A (Recommended) — Download Pretrained Model
 Runs immediately. 
-1. Open the Google Colab Notebook located at [`ml/train_on_colab.ipynb`](file:///d:/Codebase/Guardian-AI/ml/train_on_colab.ipynb) on Colab's free T4 GPU.
+1. Open the Google Colab Notebook located at [ml/train_on_colab.ipynb](ml/train_on_colab.ipynb) on Colab's free T4 GPU.
 2. Run the cells to download the PAN 2012 dataset from Zenodo, execute Hinglish data augmentation, and fine-tune `distilbert-base-uncased`.
 3. Download the generated `saved_model_bert.zip` and unzip its contents directly into:
    `ml/models/grooming_model/saved_model_bert/`
