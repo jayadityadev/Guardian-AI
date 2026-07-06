@@ -4,7 +4,8 @@ import modal
 # 1. Define the Modal App
 app = modal.App("guardian-ai-ml")
 
-# 2. Define the container environment
+# 2. Define the container environment, adding the local ml/ folder directly to the image
+# Exclude the heavy python virtual environment (.venv) and pycaches to ensure fast builds
 image = (
     modal.Image.debian_slim(python_version="3.11")
     .pip_install(
@@ -19,20 +20,13 @@ image = (
         "fastapi",
         "pydantic"
     )
-)
-
-# 3. Mount local ml directory
-# This uploads your local ml/ folder code into the serverless container
-ml_mount = modal.Mount.from_local_dir(
-    "./ml",
-    remote_path="/root/ml"
+    .add_local_dir("./ml", remote_path="/root/ml", ignore=[".venv", "__pycache__"])
 )
 
 # 4. Define the inference endpoint
 # Auto-packages local environment keys as container secrets during deploy
 @app.function(
     image=image,
-    mounts=[ml_mount],
     secrets=[
         modal.Secret.from_dict({
             "GROQ_API_KEY": os.getenv("GROQ_API_KEY", ""),
