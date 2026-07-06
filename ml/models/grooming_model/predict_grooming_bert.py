@@ -1,13 +1,12 @@
 """
 BERT Grooming Detection Predictor
 Uses fine-tuned DistilBERT model for predator behavior recognition
-TensorFlow backend for Windows compatibility
+PyTorch backend for Windows compatibility and fast startup
 """
 
 from pathlib import Path
-import tensorflow as tf
-from transformers import AutoTokenizer, TFAutoModelForSequenceClassification
-import numpy as np
+import torch
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 # Global model cache
 _model = None
@@ -32,13 +31,14 @@ def _load_model():
     if not model_path.exists():
         raise FileNotFoundError(
             f"BERT model not found at {model_path}\n"
-            f"Run: python train_bert_grooming.py"
+            f"Run Colab training notebook and save under saved_model_bert/"
         )
     
     try:
         _tokenizer = AutoTokenizer.from_pretrained(str(model_path))
-        _model = TFAutoModelForSequenceClassification.from_pretrained(str(model_path))
-        print(f"Successfully loaded BERT model from {model_path}")
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        _model = AutoModelForSequenceClassification.from_pretrained(str(model_path)).to(device)
+        print(f"Successfully loaded BERT model from {model_path} on {device}")
     except Exception as e:
         raise RuntimeError(f"Failed to load BERT model: {e}")
     
@@ -73,23 +73,27 @@ def predict_grooming(text, threshold=0.5):
         }
     
     try:
+        # Determine device model is loaded on
+        device = next(model.parameters()).device
+        
         # Tokenize input
         inputs = tokenizer(
             text,
             max_length=128,
             padding='max_length',
             truncation=True,
-            return_tensors='tf'
-        )
+            return_tensors='pt'
+        ).to(device)
         
         # Get prediction
-        outputs = model(inputs)
+        with torch.no_grad():
+            outputs = model(**inputs)
         logits = outputs.logits
         
         # Apply softmax to get probabilities
-        probs = tf.nn.softmax(logits, axis=1)
-        grooming_prob = float(probs[0, 1].numpy())  # Probability of class 1 (grooming)
-        safe_prob = float(probs[0, 0].numpy())
+        probs = torch.softmax(logits, dim=1)
+        grooming_prob = float(probs[0, 1].item())  # Probability of class 1 (grooming)
+        safe_prob = float(probs[0, 0].item())
         
         is_grooming = grooming_prob >= threshold
         confidence = max(grooming_prob, safe_prob)

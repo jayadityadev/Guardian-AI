@@ -58,3 +58,7 @@ ml/models/grooming_model/saved_model/
 ml/models/grooming_model/saved_model_bert/
 ml/models/grooming_model/saved_model_enhanced/
 ml/models/url_model/saved_model/
+
+# Raw downloaded datasets
+data/pan2012/
+data/pan12.zip

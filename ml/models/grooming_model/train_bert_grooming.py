@@ -65,39 +65,28 @@ class GroomingBERTTrainer:
         print("  STEP 1: LOADING AND MERGING DATASETS")
         print("="*70 + "\n")
         
-        try:
-            # Load old project data
-            old_grooming = pd.read_csv(
-                r'D:\major\child_preditor\childshield-ai\data\raw\grooming_dataset.csv',
-                encoding='utf-8',
-                on_bad_lines='skip'
-            )
-        except:
-            print("Old project dataset not found")
-            old_grooming = pd.DataFrame()
-        
-        # Load new project data
-        new_grooming = pd.read_csv(
-            r'D:\Guardian-AI\data\raw\grooming_dataset.csv',
-            encoding='utf-8',
-            on_bad_lines='skip'
-        )
-        
-        # Merge if old data exists
-        if len(old_grooming) > 0:
-            merged = pd.concat([old_grooming, new_grooming], ignore_index=True)
-        else:
-            merged = new_grooming
+        raw_path = r"d:\Codebase\Guardian-AI\data\raw\grooming_dataset.csv"
+        merged = pd.read_csv(raw_path, encoding='utf-8', on_bad_lines='skip')
         
         # Clean
         merged = merged.drop_duplicates()
         merged = merged.dropna()
         
-        # Extract
-        texts = merged.iloc[:, 0].astype(str).tolist()
-        labels = merged.iloc[:, -1].astype(int).tolist()
+        # Balance and sample down to 500 rows to ensure fast CPU-only training
+        pos = merged[merged['label'] == 1]
+        neg = merged[merged['label'] == 0]
+        sample_size = min(len(pos), len(neg), 250)
         
-        print(f"Total samples: {len(merged)}")
+        sampled = pd.concat([
+            pos.sample(sample_size, random_state=42),
+            neg.sample(sample_size, random_state=42)
+        ]).sample(frac=1.0, random_state=42) # shuffle
+        
+        # Extract
+        texts = sampled['text'].astype(str).tolist()
+        labels = sampled['label'].astype(int).tolist()
+        
+        print(f"Total samples (sampled): {len(sampled)}")
         print(f"  - Grooming: {sum(labels)} ({100*sum(labels)//len(labels)}%)")
         print(f"  - Safe: {len(labels) - sum(labels)} ({100*(len(labels)-sum(labels))//len(labels)}%)\n")
         
@@ -323,7 +312,7 @@ def main():
     trainer.compile_model()
     
     # Step 5: Train
-    trainer.train(train_dataset, test_dataset, epochs=3)
+    trainer.train(train_dataset, test_dataset, epochs=1)
     
     # Step 6: Evaluate
     metrics = trainer.evaluate(test_dataset, test_texts, test_labels)

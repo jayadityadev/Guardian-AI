@@ -274,10 +274,20 @@ def bert_score(messages: list[dict[str, Any]]) -> float:
     if not full_text:
         return 0.0
 
+    # 1. Try BERT only if the model files exist
+    model_dir = os.path.join(os.path.dirname(__file__), 'saved_model_bert')
+    if os.path.isdir(model_dir):
+        try:
+            from .predict_grooming_bert import predict_grooming_with_confidence as bert_predict
+            result = bert_predict(full_text)
+            return float(result.get("probability", 0.0))
+        except Exception:
+            pass
+
+    # 2. Fall back to TF-IDF classifier
     try:
-        from .predict_grooming_bert import predict_grooming_with_confidence as bert_predict
-        result = bert_predict(full_text)
-        return float(result.get("probability", 0.0))
+        from .predict_grooming import predict_grooming as tfidf_predict
+        return float(tfidf_predict(full_text))
     except Exception:
         # Keep risk scoring useful for demos when model artifacts are unavailable.
         flags = _keyword_flags(messages)
