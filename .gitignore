@@ -62,3 +62,6 @@ ml/models/url_model/saved_model/
 # Raw downloaded datasets
 data/pan2012/
 data/pan12.zip
+
+# Graphify
+graphify-out/
